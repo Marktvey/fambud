@@ -560,6 +560,31 @@ function render(){
   saveDataCache();
 }
 
+function renderInlineAdd(boxId, placeholder, onSubmit){
+  const box = document.getElementById(boxId);
+  if(!box) return;
+  box.innerHTML = `
+    <div style="display:flex; gap:6px; margin-top:6px;">
+      <input type="text" id="${boxId}-input" placeholder="${placeholder}" style="flex:1;">
+      <button type="button" class="small-btn" id="${boxId}-ok">ОК</button>
+      <button type="button" class="small-btn" id="${boxId}-cancel">✕</button>
+    </div>
+  `;
+  const input = document.getElementById(boxId+'-input');
+  input.focus();
+  const cleanup = ()=>{ box.innerHTML=''; };
+  document.getElementById(boxId+'-ok').addEventListener('click', async ()=>{
+    const val = input.value.trim();
+    if(!val) return;
+    cleanup();
+    await onSubmit(val);
+  });
+  document.getElementById(boxId+'-cancel').addEventListener('click', cleanup);
+  input.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){ e.preventDefault(); document.getElementById(boxId+'-ok').click(); }
+  });
+}
+
 function renderFeed(){
   const panel = document.getElementById('panel-feed');
   const cats = displayCategories();
@@ -582,8 +607,8 @@ function renderFeed(){
             <input type="text" id="fName" list="nameHistoryList" placeholder="напр. Хлеб" autocomplete="off">
             <datalist id="nameHistoryList">${nameHistory.map(e=>`<option value="${escapeHtml(e.displayName)}">`).join('')}</datalist>
           </div>
-          <div><label>Категория</label><select id="fCat">${catOptions}</select></div>
-          <div><label>Магазин</label><select id="fStore">${storeOptions}</select></div>
+          <div><label>Категория</label><select id="fCat">${catOptions}</select><div id="catAddBox"></div></div>
+          <div><label>Магазин</label><select id="fStore">${storeOptions}</select><div id="storeAddBox"></div></div>
           <div><label>Дата</label><input type="date" id="fDate" value="${new Date().toISOString().slice(0,10)}"></div>
           <div><label>Кол-во</label><input type="number" id="fQty" value="1" step="any" min="0"></div>
           <div><label>Сумма (всего)</label><input type="number" id="fTotal" placeholder="0" step="any" min="0"></div>
@@ -597,7 +622,7 @@ function renderFeed(){
       bodyHtml = `
         <div class="form-card">
           <div class="form-title">Несколько трат сразу</div>
-          <div style="margin-bottom:8px;"><label>Магазин (один для всех позиций)</label><select id="bulkStore">${storeOptions}</select></div>
+          <div style="margin-bottom:8px;"><label>Магазин (один для всех позиций)</label><select id="bulkStore">${storeOptions}</select><div id="bulkStoreAddBox"></div></div>
           <textarea class="bulk-input" id="bulkText" placeholder="Хлеб 12&#10;Молоко 2 25&#10;Яйца 30"></textarea>
           <div class="bulk-hint">По одной позиции на строку: «Название Сумма» или «Название Кол-во Сумма» (если было несколько штук на одну сумму).</div>
           <button class="btn" id="showPreviewBtn">Показать</button>
@@ -705,30 +730,35 @@ function renderFeed(){
       document.getElementById(id).addEventListener('input', updatePriceHint);
     });
 
-    fCatEl.addEventListener('change', async ()=>{
+    fCatEl.addEventListener('change', ()=>{
       if(fCatEl.value === ADD_CAT_VALUE){
-        const name = (window.prompt('Название новой категории:') || '').trim();
-        if(!name){ renderFeed(); return; }
-        const res = await performAction('addCategory', {name});
-        if(res.ok){ categories.push(name); showToast('Категория добавлена'); }
-        else { showToast('Нет связи — категория добавится при подключении'); }
-        renderFeed();
-        render();
-        const again = document.getElementById('fCat');
-        if(again) again.value = name;
+        renderInlineAdd('catAddBox', 'Название категории', async (name)=>{
+          const res = await performAction('addCategory', {name});
+          if(res.ok){ categories.push(name); showToast('Категория добавлена'); }
+          else { showToast('Нет связи — категория добавится при подключении'); }
+          const sel = document.getElementById('fCat');
+          if(sel){
+            sel.innerHTML = displayCategories().map(c=>`<option value="${c}">${c}</option>`).join('') + `<option value="${ADD_CAT_VALUE}">+ Добавить категорию…</option>`;
+            sel.value = name;
+          }
+          saveDataCache();
+        });
       }
     });
-    fStoreEl.addEventListener('change', async ()=>{
+    fStoreEl.addEventListener('change', ()=>{
       if(fStoreEl.value === ADD_STORE_VALUE){
-        const name = (window.prompt('Название магазина:') || '').trim();
-        if(!name){ renderFeed(); return; }
-        const res = await performAction('addStore', {name});
-        if(res.ok){ stores.push(name); showToast('Магазин добавлен'); }
-        else { showToast('Нет связи — магазин добавится при подключении'); }
-        renderFeed();
-        render();
-        const again = document.getElementById('fStore');
-        if(again) again.value = name;
+        renderInlineAdd('storeAddBox', 'Название магазина', async (name)=>{
+          const res = await performAction('addStore', {name});
+          if(res.ok){ stores.push(name); showToast('Магазин добавлен'); }
+          else { showToast('Нет связи — магазин добавится при подключении'); }
+          const sel = document.getElementById('fStore');
+          if(sel){
+            sel.innerHTML = displayStores().map(s=>`<option value="${s}">${s}</option>`).join('') + `<option value="${ADD_STORE_VALUE}">+ Добавить магазин…</option>`;
+            sel.value = name;
+          }
+          saveDataCache();
+          updatePriceHint();
+        });
       } else {
         updatePriceHint();
       }
@@ -764,16 +794,20 @@ function renderFeed(){
     if(!bulkPreview){
       const bulkStoreEl = document.getElementById('bulkStore');
       if(bulkStoreSelected) bulkStoreEl.value = bulkStoreSelected;
-      bulkStoreEl.addEventListener('change', async ()=>{
+      bulkStoreEl.addEventListener('change', ()=>{
         if(bulkStoreEl.value === ADD_STORE_VALUE){
-          const name = (window.prompt('Название магазина:') || '').trim();
-          if(!name){ renderFeed(); return; }
-          const res = await performAction('addStore', {name});
-          if(res.ok){ stores.push(name); showToast('Магазин добавлен'); }
-          else { showToast('Нет связи — магазин добавится при подключении'); }
-          bulkStoreSelected = name;
-          renderFeed();
-          render();
+          renderInlineAdd('bulkStoreAddBox', 'Название магазина', async (name)=>{
+            const res = await performAction('addStore', {name});
+            if(res.ok){ stores.push(name); showToast('Магазин добавлен'); }
+            else { showToast('Нет связи — магазин добавится при подключении'); }
+            bulkStoreSelected = name;
+            const sel = document.getElementById('bulkStore');
+            if(sel){
+              sel.innerHTML = displayStores().map(s=>`<option value="${s}">${s}</option>`).join('') + `<option value="${ADD_STORE_VALUE}">+ Добавить магазин…</option>`;
+              sel.value = name;
+            }
+            saveDataCache();
+          });
         } else {
           bulkStoreSelected = bulkStoreEl.value;
         }
