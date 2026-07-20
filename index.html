@@ -52,6 +52,7 @@
   .conn-status{ font-size: 10px; color: var(--ink-soft); text-align:right; margin: -8px 0 12px; }
   .conn-status.err{ color: var(--red); }
   .conn-status.pending{ color: var(--amber); }
+  .offline-banner{ font-size:11.5px; background:#F3E7C8; color:var(--amber); padding:8px 11px; border-radius:var(--radius); margin-bottom:12px; line-height:1.5; }
 
   .receipt{
     background: var(--paper-card); border-radius: var(--radius);
@@ -77,8 +78,9 @@
   .summary-cell.expense .value{ color: var(--red); }
   .summary-divider{ width:1px; background: repeating-linear-gradient(var(--line), var(--line) 4px, transparent 4px, transparent 8px); }
 
-  .tabs{ display:flex; background: var(--paper-card); border-radius: var(--radius); border: 1px solid var(--line); overflow:hidden; margin-bottom: 16px; }
-  .tab{ flex:1; text-align:center; padding: 11px 4px; font-size: 13px; font-weight:600; font-family:'Space Grotesk',sans-serif; color: var(--ink-soft); cursor:pointer; border-right: 1px solid var(--line); user-select:none; }
+  .tabs{ display:flex; background: var(--paper-card); border-radius: var(--radius); border: 1px solid var(--line); overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom: 16px; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar{ display:none; }
+  .tab{ flex:0 0 auto; text-align:center; padding: 11px 13px; font-size: 12.5px; font-weight:600; font-family:'Space Grotesk',sans-serif; color: var(--ink-soft); cursor:pointer; border-right: 1px solid var(--line); user-select:none; white-space:nowrap; }
   .tab:last-child{ border-right:none; }
   .tab.active{ background: var(--ink); color: var(--paper-card); }
 
@@ -94,6 +96,7 @@
   .btn{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size: 13.5px; background: var(--ink); color: var(--paper-card); border:none; border-radius: var(--radius); padding: 10px 14px; cursor:pointer; width:100%; margin-top: 10px; }
   .btn:active{ transform: translateY(1px); }
   .btn:disabled{ opacity:.5; }
+  .btn.secondary{ background:transparent; color:var(--ink); border:1px solid var(--line); }
 
   .tx-row{ display:flex; align-items:center; gap:10px; padding: 9px 0; border-bottom: 1px dashed var(--line); }
   .tx-row:last-child{ border-bottom:none; }
@@ -106,33 +109,6 @@
   .tx-amount{ font-family:'IBM Plex Mono',monospace; font-size: 14px; font-weight:600; white-space:nowrap; }
   .tx-del{ width:22px; height:22px; border-radius:50%; border:1px solid var(--line); background:#fff; color: var(--ink-soft); font-size:13px; line-height:1; cursor:pointer; flex-shrink:0; }
   .empty-state{ text-align:center; padding: 26px 10px; color: var(--ink-soft); font-size: 13px; }
-
-  .month-picker{ display:flex; align-items:center; gap:10px; margin-bottom: 14px; }
-  .month-picker label{ margin:0; white-space:nowrap; }
-  .cat-row{ padding: 10px 0; border-bottom: 1px dashed var(--line); }
-  .cat-row:last-child{ border-bottom:none; }
-  .cat-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; }
-  .cat-name{ font-size: 13px; font-weight:500; }
-  .cat-figs{ font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: var(--ink-soft); }
-  .cat-figs b{ color: var(--ink); }
-  .bar-track{ height: 6px; background: #E3DDD0; border-radius: 3px; overflow:hidden; margin-bottom:6px; }
-  .bar-fill{ height:100%; background: var(--green); border-radius:3px; transition: width .25s; }
-  .bar-fill.over{ background: var(--red); }
-  .plan-input{ width: 90px; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:5px 7px; }
-  .cat-controls{ display:flex; gap:8px; align-items:center; }
-  .cat-controls label{ margin:0; font-size:11px; }
-
-  .donut-wrap{ display:flex; align-items:center; gap:18px; margin: 6px 0 4px; flex-wrap:wrap; }
-  .donut{ width: 110px; height: 110px; border-radius:50%; flex-shrink:0; }
-  .legend{ font-size: 11px; flex:1; min-width: 160px; }
-  .legend-item{ display:flex; align-items:center; gap:6px; margin-bottom:4px; }
-  .legend-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .legend-name{ flex:1; }
-  .legend-val{ font-family:'IBM Plex Mono',monospace; color: var(--ink-soft); }
-
-  .toast{ position:fixed; bottom: 18px; left:50%; transform: translateX(-50%); background: var(--ink); color: var(--paper-card); font-size: 12.5px; padding: 9px 16px; border-radius: var(--radius); opacity:0; pointer-events:none; transition: opacity .25s; z-index: 50; font-family:'Space Grotesk',sans-serif; max-width: 90vw; text-align:center; }
-  .toast.show{ opacity:1; }
-  .loading{ text-align:center; padding: 60px 10px; color: var(--ink-soft); font-size:13px; font-family:'IBM Plex Mono',monospace; }
 
   .chips{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
   .chip{ font-family:'Inter',sans-serif; font-size:11.5px; padding:6px 10px; border-radius:14px; border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink); }
@@ -153,12 +129,49 @@
   .preview-row .prem{ width:20px; height:20px; border-radius:50%; border:1px solid var(--line); background:#fff; color:var(--ink-soft); font-size:12px; line-height:1; cursor:pointer; flex-shrink:0; }
   .bulk-actions{ display:flex; gap:8px; margin-top:10px; }
   .bulk-actions .btn{ margin-top:0; }
-  .bulk-actions .btn.secondary{ background:transparent; color:var(--ink); border:1px solid var(--line); }
   .bulk-invalid{ font-size:11px; color:var(--red); margin-top:6px; }
+
+  .search-toggle{ font-size:12.5px; text-decoration:underline; cursor:pointer; color:var(--ink-soft); display:inline-block; }
+  .search-box{ margin: 10px 0; }
+  .price-row{ display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px dashed var(--line); }
+  .price-row:last-child{ border-bottom:none; }
+  .price-store{ font-size:11.5px; font-weight:600; color:var(--navy); flex-shrink:0; width:84px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .price-date{ font-size:10.5px; color:var(--ink-soft); flex-shrink:0; width:42px; }
+  .price-amt{ font-family:'IBM Plex Mono',monospace; font-size:12.5px; flex:1; text-align:right; }
+  .price-arrow{ width:16px; text-align:center; font-weight:700; flex-shrink:0; }
+  .price-arrow.up{ color:var(--red); }
+  .price-arrow.down{ color:var(--green); }
+
+  .price-hint{ font-size:11px; color:var(--ink-soft); background:#F4F1EA; border-radius:var(--radius); padding:8px 10px; margin-top:8px; line-height:1.6; }
+  .price-hint b.cheapest{ color:var(--green); }
+  .price-hint .arrow-up{ color:var(--red); font-weight:700; }
+  .price-hint .arrow-down{ color:var(--green); font-weight:700; }
+
+  .month-picker{ display:flex; align-items:center; gap:10px; margin-bottom: 14px; }
+  .month-picker label{ margin:0; white-space:nowrap; }
+  .cat-row{ padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .cat-row:last-child{ border-bottom:none; }
+  .cat-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; gap:8px; }
+  .cat-name{ font-size: 13px; font-weight:500; }
+  .cat-figs{ font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: var(--ink-soft); white-space:nowrap; }
+  .cat-figs b{ color: var(--ink); }
+  .bar-track{ height: 6px; background: #E3DDD0; border-radius: 3px; overflow:hidden; margin-bottom:6px; }
+  .bar-fill{ height:100%; background: var(--green); border-radius:3px; transition: width .25s; }
+  .bar-fill.over{ background: var(--red); }
+  .plan-input{ width: 90px; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:5px 7px; }
+  .cat-controls{ display:flex; gap:8px; align-items:center; }
+  .cat-controls label{ margin:0; font-size:11px; }
+
+  .donut-wrap{ display:flex; align-items:center; gap:18px; margin: 6px 0 4px; flex-wrap:wrap; }
+  .donut{ width: 110px; height: 110px; border-radius:50%; flex-shrink:0; }
+  .legend{ font-size: 11px; flex:1; min-width: 160px; }
+  .legend-item{ display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+  .legend-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .legend-name{ flex:1; }
+  .legend-val{ font-family:'IBM Plex Mono',monospace; color: var(--ink-soft); }
 
   .debt-form-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
   .debt-form-grid .full{ grid-column:1/-1; }
-  .debt-summary{ display:flex; gap:8px; margin-bottom:4px; }
   .debt-balance-row{ padding:9px 0; border-bottom:1px dashed var(--line); display:flex; justify-content:space-between; align-items:center; }
   .debt-balance-row:last-child{ border-bottom:none; }
   .debt-person-name{ font-size:13px; font-weight:500; }
@@ -175,6 +188,10 @@
   .debt-tag.closed-tag{ background:#EDEAE3; color:var(--ink-soft); }
   .debt-meta{ font-size:10.5px; color:var(--ink-soft); margin-top:3px; }
   .small-btn{ font-size:11px; padding:4px 9px; border:1px solid var(--line); border-radius:var(--radius); background:#fff; cursor:pointer; font-family:'Space Grotesk',sans-serif; flex-shrink:0; }
+
+  .toast{ position:fixed; bottom: 18px; left:50%; transform: translateX(-50%); background: var(--ink); color: var(--paper-card); font-size: 12.5px; padding: 9px 16px; border-radius: var(--radius); opacity:0; pointer-events:none; transition: opacity .25s; z-index: 50; font-family:'Space Grotesk',sans-serif; max-width: 90vw; text-align:center; }
+  .toast.show{ opacity:1; }
+  .loading{ text-align:center; padding: 60px 10px; color: var(--ink-soft); font-size:13px; font-family:'IBM Plex Mono',monospace; }
 </style>
 </head>
 <body>
@@ -191,24 +208,61 @@ const API_TOKEN = 'kv-vt-budget-7f3a91';
 
 const WHO = ['Константин','Виктория'];
 const ADD_CAT_VALUE = '__add_new__';
+const ADD_STORE_VALUE = '__add_store__';
 const DONUT_COLORS = ['#2F6F4E','#24405E','#A83A2E','#B8964F','#6B6459','#7A8C6E','#5C4A72','#8C6E4A',
   '#4A7A8C','#8C4A5C','#4A6E8C','#8C7A4A','#6E4A8C','#4A8C6E','#8C5C4A','#4A5C8C','#8C4A7A','#4A8C4A'];
 
 let transactions = [];
 let incomes = [];
 let categories = [];
+let stores = [];
 let plans = {};
 let debts = [];
+let savings = [];
+let goals = [];
+
 let activeTab = 'feed';
 let currentMonth = new Date().toISOString().slice(0,7);
 let apiOk = true;
+let usingCache = false;
+let cacheTimestamp = null;
 let pendingQueue = [];
+
 let feedMode = 'single';
 let bulkPreview = null;
+let bulkStoreSelected = '';
+let searchOpen = false;
+let searchQuery = '';
+let budgetMode = 'month';
+let budgetDay = new Date().toISOString().slice(0,10);
 
 try{ pendingQueue = JSON.parse(localStorage.getItem('pendingQueue') || '[]'); }catch(e){ pendingQueue = []; }
 function savePendingQueue(){
   try{ localStorage.setItem('pendingQueue', JSON.stringify(pendingQueue)); }catch(e){}
+}
+function saveDataCache(){
+  try{
+    localStorage.setItem('dataCache', JSON.stringify({
+      transactions, incomes, categories, stores, plans, debts, savings, goals, cachedAt: Date.now()
+    }));
+  }catch(e){}
+}
+function loadDataCache(){
+  try{
+    const raw = localStorage.getItem('dataCache');
+    if(!raw) return false;
+    const c = JSON.parse(raw);
+    transactions = c.transactions || [];
+    incomes = c.incomes || [];
+    categories = c.categories || [];
+    stores = c.stores || [];
+    plans = c.plans || {};
+    debts = c.debts || [];
+    savings = c.savings || [];
+    goals = c.goals || [];
+    cacheTimestamp = c.cachedAt || null;
+    return true;
+  }catch(e){ return false; }
 }
 
 function money(n){
@@ -246,11 +300,16 @@ async function loadAll(){
   transactions = data.transactions || [];
   incomes = data.incomes || [];
   categories = data.categories || [];
+  stores = data.stores || [];
   plans = data.plans || {};
   debts = data.debts || [];
+  savings = data.savings || [];
+  goals = data.goals || [];
+  usingCache = false;
+  cacheTimestamp = null;
+  saveDataCache();
 }
 
-// действие с автоматическим уходом в офлайн-очередь при отсутствии связи
 async function performAction(action, params){
   try{
     const data = await apiCall(action, params);
@@ -275,7 +334,7 @@ async function flushQueue(){
       savePendingQueue();
     }catch(err){
       apiOk = false;
-      return; // всё ещё нет связи — прекращаем, попробуем позже
+      return;
     }
   }
   apiOk = true;
@@ -289,14 +348,15 @@ function displayTransactions(){
   const pendSingle = pendingQueue.filter(q=>q.action==='addTx').map(q=>({
     no: q.id, date: q.params.date, name: q.params.name, category: q.params.category,
     who: q.params.who, qty: parseFloat(q.params.qty)||1, total: parseFloat(q.params.total)||0,
-    pending: true
+    store: q.params.store||'', pending: true
   }));
   const pendBulk = pendingQueue.filter(q=>q.action==='addTxBulk').flatMap(q=>{
     let items = [];
     try{ items = JSON.parse(q.params.items); }catch(e){ items = []; }
     return items.map((it,idx)=>({
       no: q.id+'-'+idx, date: it.date, name: it.name, category: it.category,
-      who: it.who, qty: parseFloat(it.qty)||1, total: parseFloat(it.total)||0, pending: true
+      who: it.who, qty: parseFloat(it.qty)||1, total: parseFloat(it.total)||0,
+      store: it.store||'', pending: true
     }));
   });
   return transactions.concat(pendSingle, pendBulk);
@@ -314,6 +374,12 @@ function displayCategories(){
   pendNames.forEach(n=>{ if(!set.includes(n)) set.push(n); });
   return set;
 }
+function displayStores(){
+  const pendNames = pendingQueue.filter(q=>q.action==='addStore').map(q=>q.params.name);
+  const set = stores.slice();
+  pendNames.forEach(n=>{ if(!set.includes(n)) set.push(n); });
+  return set;
+}
 function displayPlans(){
   const merged = Object.assign({}, plans);
   pendingQueue.filter(q=>q.action==='setBudget').forEach(q=>{ merged[q.params.category] = parseFloat(q.params.plan)||0; });
@@ -326,19 +392,34 @@ function displayDebts(){
   }));
   return debts.concat(pend);
 }
+function displaySavings(){
+  const pend = pendingQueue.filter(q=>q.action==='addSaving').map(q=>({
+    id: q.id, date: q.params.date, amount: parseFloat(q.params.amount)||0, comment: q.params.comment||'',
+    who: q.params.who, pending: true
+  }));
+  return savings.concat(pend);
+}
+function displayGoals(){
+  const pend = pendingQueue.filter(q=>q.action==='addGoal').map(q=>({
+    id: q.id, name: q.params.name, target: parseFloat(q.params.target)||0, saved: parseFloat(q.params.saved)||0,
+    comment: q.params.comment||'', pending: true
+  }));
+  return goals.concat(pend);
+}
 
-// --- история названий: подсказки + автокатегория ---
+// --- история названий: подсказки, автокатегория, цены по магазинам ---
 function buildNameHistory(){
-  const freq = {}; // ключ (lowercase) -> {counts:{cat:n}, displayName, lastQty, lastTotal}
+  const freq = {};
   displayTransactions().forEach(t=>{
     const key = (t.name||'').trim().toLowerCase();
     if(!key) return;
-    if(!freq[key]) freq[key] = { counts:{}, displayName:t.name, lastQty:1, lastTotal:0, uses:0 };
+    if(!freq[key]) freq[key] = { counts:{}, displayName:t.name, lastQty:1, lastTotal:0, lastStore:'', uses:0 };
     freq[key].counts[t.category] = (freq[key].counts[t.category]||0)+1;
     freq[key].uses++;
     freq[key].displayName = t.name;
     freq[key].lastQty = t.qty || 1;
     freq[key].lastTotal = t.total || 0;
+    freq[key].lastStore = t.store || '';
   });
   return freq;
 }
@@ -353,9 +434,21 @@ function suggestCategoryForName(name, freq){
 function topFrequentItems(n){
   const freq = buildNameHistory();
   return Object.values(freq).sort((a,b)=>b.uses-a.uses).slice(0,n).map(e=>({
-    displayName: e.displayName, total: e.lastTotal, qty: e.lastQty,
+    displayName: e.displayName, total: e.lastTotal, qty: e.lastQty, store: e.lastStore,
     category: Object.entries(e.counts).sort((a,b)=>b[1]-a[1])[0][0]
   }));
+}
+function priceHistoryByStore(name){
+  const key = (name||'').trim().toLowerCase();
+  if(!key) return [];
+  const matches = displayTransactions().filter(t=>(t.name||'').trim().toLowerCase()===key);
+  if(!matches.length) return [];
+  const byStore = {};
+  matches.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(t=>{
+    const store = t.store || '—';
+    byStore[store] = { price: t.total/(t.qty||1), date: t.date };
+  });
+  return Object.entries(byStore).map(([store,v])=>({store, price:v.price, date:v.date})).sort((a,b)=>a.price-b.price);
 }
 
 // --- парсинг строк массового ввода: "Название Сумма" или "Название Кол-во Сумма" ---
@@ -402,11 +495,16 @@ function render(){
     statusClass = '';
   }
 
+  const offlineBanner = (usingCache && !apiOk) ? `
+    <div class="offline-banner">Нет интернета — показаны данные на ${cacheTimestamp ? new Date(cacheTimestamp).toLocaleString('ru-RU') : 'последнюю синхронизацию'}. Можно продолжать добавлять траты, они отправятся сами при подключении.</div>
+  ` : '';
+
   app.innerHTML = `
     <div class="brand">
       <h1>Семейный бюджет</h1>
       <span class="who-badge" id="whoBadge">${window.__currentWho || WHO[0]}</span>
     </div>
+    ${offlineBanner}
     <div class="conn-status ${statusClass}" id="connStatus">${statusText} · <span id="refreshBtn" style="text-decoration:underline; cursor:pointer;">обновить</span></div>
 
     <div class="receipt">
@@ -425,12 +523,16 @@ function render(){
       <div class="tab ${activeTab==='feed'?'active':''}" data-tab="feed">Лента</div>
       <div class="tab ${activeTab==='income'?'active':''}" data-tab="income">Доходы</div>
       <div class="tab ${activeTab==='debts'?'active':''}" data-tab="debts">Долги</div>
+      <div class="tab ${activeTab==='savings'?'active':''}" data-tab="savings">Накопления</div>
+      <div class="tab ${activeTab==='goals'?'active':''}" data-tab="goals">Цели</div>
       <div class="tab ${activeTab==='budget'?'active':''}" data-tab="budget">Бюджет</div>
     </div>
 
     <div class="panel ${activeTab==='feed'?'active':''}" id="panel-feed"></div>
     <div class="panel ${activeTab==='income'?'active':''}" id="panel-income"></div>
     <div class="panel ${activeTab==='debts'?'active':''}" id="panel-debts"></div>
+    <div class="panel ${activeTab==='savings'?'active':''}" id="panel-savings"></div>
+    <div class="panel ${activeTab==='goals'?'active':''}" id="panel-goals"></div>
     <div class="panel ${activeTab==='budget'?'active':''}" id="panel-budget"></div>
   `;
 
@@ -443,21 +545,29 @@ function render(){
     document.getElementById('whoBadge').textContent = window.__currentWho;
   });
   document.getElementById('refreshBtn').addEventListener('click', async ()=>{
-    try{ await flushQueue(); await loadAll(); apiOk = true; render(); showToast('Обновлено'); }
+    await flushQueue();
+    try{ await loadAll(); apiOk = true; render(); showToast('Обновлено'); }
     catch(e){ apiOk = false; render(); showToast('Нет связи — попробуй позже'); }
   });
 
   if(activeTab==='feed') renderFeed();
   if(activeTab==='income') renderIncome();
   if(activeTab==='debts') renderDebts();
+  if(activeTab==='savings') renderSavings();
+  if(activeTab==='goals') renderGoals();
   if(activeTab==='budget') renderBudget();
+
+  saveDataCache();
 }
 
 function renderFeed(){
   const panel = document.getElementById('panel-feed');
   const cats = displayCategories();
+  const storeList = displayStores();
   const catOptions = cats.map(c=>`<option value="${c}">${c}</option>`).join('')
     + `<option value="${ADD_CAT_VALUE}">+ Добавить категорию…</option>`;
+  const storeOptions = storeList.map(s=>`<option value="${s}">${s}</option>`).join('')
+    + `<option value="${ADD_STORE_VALUE}">+ Добавить магазин…</option>`;
   const chips = topFrequentItems(6);
   const nameHistory = Object.values(buildNameHistory());
 
@@ -473,10 +583,12 @@ function renderFeed(){
             <datalist id="nameHistoryList">${nameHistory.map(e=>`<option value="${escapeHtml(e.displayName)}">`).join('')}</datalist>
           </div>
           <div><label>Категория</label><select id="fCat">${catOptions}</select></div>
+          <div><label>Магазин</label><select id="fStore">${storeOptions}</select></div>
           <div><label>Дата</label><input type="date" id="fDate" value="${new Date().toISOString().slice(0,10)}"></div>
           <div><label>Кол-во</label><input type="number" id="fQty" value="1" step="any" min="0"></div>
           <div><label>Сумма (всего)</label><input type="number" id="fTotal" placeholder="0" step="any" min="0"></div>
         </div>
+        <div id="priceHintBox"></div>
         <button class="btn" id="addTxBtn">Добавить трату</button>
       </div>
     `;
@@ -485,6 +597,7 @@ function renderFeed(){
       bodyHtml = `
         <div class="form-card">
           <div class="form-title">Несколько трат сразу</div>
+          <div style="margin-bottom:8px;"><label>Магазин (один для всех позиций)</label><select id="bulkStore">${storeOptions}</select></div>
           <textarea class="bulk-input" id="bulkText" placeholder="Хлеб 12&#10;Молоко 2 25&#10;Яйца 30"></textarea>
           <div class="bulk-hint">По одной позиции на строку: «Название Сумма» или «Название Кол-во Сумма» (если было несколько штук на одну сумму).</div>
           <button class="btn" id="showPreviewBtn">Показать</button>
@@ -493,7 +606,7 @@ function renderFeed(){
     } else {
       bodyHtml = `
         <div class="form-card">
-          <div class="form-title">Проверь и поправь категории</div>
+          <div class="form-title">Проверь и поправь категории (магазин: ${escapeHtml(bulkStoreSelected || '—')})</div>
           ${bulkPreview.map((it,idx)=>`
             <div class="preview-row" data-idx="${idx}">
               <span class="pname">${escapeHtml(it.name)}</span>
@@ -515,12 +628,19 @@ function renderFeed(){
   }
 
   panel.innerHTML = `
-    ${chips.length ? `<div class="chips">${chips.map(it=>`<button class="chip" data-name="${escapeHtml(it.displayName)}" data-total="${it.total}" data-qty="${it.qty}" data-cat="${escapeHtml(it.category)}">${escapeHtml(it.displayName)} · ${money(it.total)}</button>`).join('')}</div>` : ''}
+    ${chips.length ? `<div class="chips">${chips.map(it=>`<button class="chip" data-name="${escapeHtml(it.displayName)}" data-total="${it.total}" data-qty="${it.qty}" data-cat="${escapeHtml(it.category)}" data-store="${escapeHtml(it.store)}">${escapeHtml(it.displayName)} · ${money(it.total)}</button>`).join('')}</div>` : ''}
     <div class="mode-toggle">
       <div class="mode-btn ${feedMode==='single'?'active':''}" data-mode="single">Обычный ввод</div>
       <div class="mode-btn ${feedMode==='bulk'?'active':''}" data-mode="bulk">Списком</div>
     </div>
     ${bodyHtml}
+    <div class="receipt"><div class="receipt-inner">
+      <div class="search-toggle" id="searchToggle">${searchOpen ? 'Скрыть поиск цен' : '🔍 Поиск и сравнение цен'}</div>
+      ${searchOpen ? `
+        <div class="search-box"><input type="text" id="searchInput" placeholder="Название товара" value="${escapeHtml(searchQuery)}"></div>
+        <div id="searchResults"></div>
+      ` : ''}
+    </div></div>
     <div class="receipt"><div class="receipt-inner" id="txList"></div></div>
   `;
 
@@ -538,13 +658,14 @@ function renderFeed(){
         date: new Date().toISOString().slice(0,10),
         name: btn.dataset.name,
         category: btn.dataset.cat,
+        store: btn.dataset.store,
         who: window.__currentWho || WHO[0],
         qty: parseFloat(btn.dataset.qty) || 1,
         total: parseFloat(btn.dataset.total) || 0
       };
       const res = await performAction('addTx', params);
       if(res.ok){
-        transactions.push({ no: res.data.no, date: params.date, name: params.name, category: params.category, who: params.who, qty: params.qty, total: params.total });
+        transactions.push({ no: res.data.no, ...params });
         showToast('Добавлено: ' + params.name);
       } else {
         showToast('Нет интернета — сохранено на телефоне');
@@ -554,16 +675,36 @@ function renderFeed(){
     });
   });
 
+  document.getElementById('searchToggle').addEventListener('click', ()=>{
+    searchOpen = !searchOpen;
+    renderFeed();
+  });
+  if(searchOpen){
+    const searchInputEl = document.getElementById('searchInput');
+    searchInputEl.addEventListener('input', ()=>{
+      searchQuery = searchInputEl.value;
+      updateSearchResults();
+    });
+    updateSearchResults();
+  }
+
   if(feedMode === 'single'){
     const fNameEl = document.getElementById('fName');
     const fCatEl = document.getElementById('fCat');
+    const fStoreEl = document.getElementById('fStore');
     const freq = buildNameHistory();
+
     fNameEl.addEventListener('input', ()=>{
       const suggestion = suggestCategoryForName(fNameEl.value, freq);
       if(suggestion && [...fCatEl.options].some(o=>o.value===suggestion)){
         fCatEl.value = suggestion;
       }
+      updatePriceHint();
     });
+    ['fStore','fQty','fTotal'].forEach(id=>{
+      document.getElementById(id).addEventListener('input', updatePriceHint);
+    });
+
     fCatEl.addEventListener('change', async ()=>{
       if(fCatEl.value === ADD_CAT_VALUE){
         const name = (window.prompt('Название новой категории:') || '').trim();
@@ -577,22 +718,39 @@ function renderFeed(){
         if(again) again.value = name;
       }
     });
+    fStoreEl.addEventListener('change', async ()=>{
+      if(fStoreEl.value === ADD_STORE_VALUE){
+        const name = (window.prompt('Название магазина:') || '').trim();
+        if(!name){ renderFeed(); return; }
+        const res = await performAction('addStore', {name});
+        if(res.ok){ stores.push(name); showToast('Магазин добавлен'); }
+        else { showToast('Нет связи — магазин добавится при подключении'); }
+        renderFeed();
+        render();
+        const again = document.getElementById('fStore');
+        if(again) again.value = name;
+      } else {
+        updatePriceHint();
+      }
+    });
 
     document.getElementById('addTxBtn').addEventListener('click', async ()=>{
       const name = document.getElementById('fName').value.trim();
       const total = parseFloat(document.getElementById('fTotal').value);
       if(!name || !total || total<=0){ showToast('Укажи название и сумму'); return; }
+      const storeVal = document.getElementById('fStore').value;
       const params = {
         date: document.getElementById('fDate').value || new Date().toISOString().slice(0,10),
         name,
         category: document.getElementById('fCat').value,
+        store: storeVal === ADD_STORE_VALUE ? '' : storeVal,
         who: window.__currentWho || WHO[0],
         qty: parseFloat(document.getElementById('fQty').value) || 1,
         total
       };
       const res = await performAction('addTx', params);
       if(res.ok){
-        transactions.push({ no: res.data.no, date: params.date, name: params.name, category: params.category, who: params.who, qty: params.qty, total: params.total });
+        transactions.push({ no: res.data.no, ...params });
         showToast('Добавлено');
       } else {
         showToast('Нет интернета — сохранено на телефоне, отправится само');
@@ -600,8 +758,26 @@ function renderFeed(){
       renderFeed();
       render();
     });
+
+    updatePriceHint();
   } else {
     if(!bulkPreview){
+      const bulkStoreEl = document.getElementById('bulkStore');
+      if(bulkStoreSelected) bulkStoreEl.value = bulkStoreSelected;
+      bulkStoreEl.addEventListener('change', async ()=>{
+        if(bulkStoreEl.value === ADD_STORE_VALUE){
+          const name = (window.prompt('Название магазина:') || '').trim();
+          if(!name){ renderFeed(); return; }
+          const res = await performAction('addStore', {name});
+          if(res.ok){ stores.push(name); showToast('Магазин добавлен'); }
+          else { showToast('Нет связи — магазин добавится при подключении'); }
+          bulkStoreSelected = name;
+          renderFeed();
+          render();
+        } else {
+          bulkStoreSelected = bulkStoreEl.value;
+        }
+      });
       document.getElementById('showPreviewBtn').addEventListener('click', ()=>{
         const text = document.getElementById('bulkText').value;
         const freq2 = buildNameHistory();
@@ -634,12 +810,13 @@ function renderFeed(){
       if(submitBtn) submitBtn.addEventListener('click', async ()=>{
         const today = new Date().toISOString().slice(0,10);
         const who = window.__currentWho || WHO[0];
-        const items = bulkPreview.map(it=>({ date: today, name: it.name, category: it.category, who, qty: it.qty, total: it.total }));
+        const store = bulkStoreSelected === ADD_STORE_VALUE ? '' : bulkStoreSelected;
+        const items = bulkPreview.map(it=>({ date: today, name: it.name, category: it.category, who, qty: it.qty, total: it.total, store }));
         const res = await performAction('addTxBulk', {items: JSON.stringify(items)});
         if(res.ok){
           const nos = res.data.nos || [];
           items.forEach((it,idx)=>{
-            transactions.push({ no: nos[idx] != null ? nos[idx] : genTmpId(), date: it.date, name: it.name, category: it.category, who: it.who, qty: it.qty, total: it.total });
+            transactions.push({ no: nos[idx] != null ? nos[idx] : genTmpId(), ...it });
           });
           showToast(`Добавлено позиций: ${items.length}`);
         } else {
@@ -654,6 +831,59 @@ function renderFeed(){
   }
 
   renderTxList();
+}
+
+function updatePriceHint(){
+  const box = document.getElementById('priceHintBox');
+  if(!box) return;
+  const name = document.getElementById('fName').value;
+  const storeSel = document.getElementById('fStore').value;
+  const qty = parseFloat(document.getElementById('fQty').value) || 1;
+  const total = parseFloat(document.getElementById('fTotal').value);
+  const entries = priceHistoryByStore(name);
+  if(!entries.length){ box.innerHTML = ''; return; }
+  const cheapest = entries[0];
+  let html = `<div class="price-hint">Цены по магазинам: ` +
+    entries.map(e=>`<b class="${e.store===cheapest.store?'cheapest':''}">${escapeHtml(e.store)}</b> ${money(e.price)}`).join(' · ') +
+    `</div>`;
+  if(storeSel && storeSel !== ADD_STORE_VALUE && !isNaN(total) && total>0){
+    const prior = entries.find(e=>e.store === storeSel);
+    if(prior){
+      const newPrice = total/qty;
+      const delta = newPrice - prior.price;
+      if(Math.abs(delta) > 0.01){
+        const cls = delta>0 ? 'arrow-up' : 'arrow-down';
+        const arrow = delta>0 ? '▲' : '▼';
+        html += `<div class="price-hint">В «${escapeHtml(storeSel)}» в прошлый раз было ${money(prior.price)}/ед. — сейчас <span class="${cls}">${arrow} ${money(Math.abs(delta))}</span></div>`;
+      }
+    }
+  }
+  box.innerHTML = html;
+}
+
+function updateSearchResults(){
+  const el = document.getElementById('searchResults');
+  if(!el) return;
+  const q = searchQuery.trim().toLowerCase();
+  if(!q){ el.innerHTML = '<div class="empty-state">Начни вводить название</div>'; return; }
+  const matches = displayTransactions().filter(t=>(t.name||'').toLowerCase().includes(q));
+  if(!matches.length){ el.innerHTML = '<div class="empty-state">Ничего не найдено</div>'; return; }
+  const sortedAsc = matches.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  let prevPrice = null;
+  const withDelta = sortedAsc.map(t=>{
+    const priceEach = t.total/(t.qty||1);
+    const delta = prevPrice===null ? null : priceEach-prevPrice;
+    prevPrice = priceEach;
+    return Object.assign({}, t, {priceEach, delta});
+  }).reverse();
+  el.innerHTML = withDelta.map(t=>`
+    <div class="price-row">
+      <span class="price-store">${escapeHtml(t.store||'—')}</span>
+      <span class="price-date">${formatDate(t.date)}</span>
+      <span class="price-amt">${money(t.priceEach)}/ед.</span>
+      <span class="price-arrow ${t.delta>0?'up':t.delta<0?'down':''}">${t.delta>0?'▲':t.delta<0?'▼':''}</span>
+    </div>
+  `).join('');
 }
 
 function renderTxList(){
@@ -671,6 +901,7 @@ function renderTxList(){
         <div class="tx-meta">
           <span>${formatDate(t.date)}</span>
           <span class="tag ${t.pending?'pending-tag':''}">${t.pending ? 'ждёт отправки' : escapeHtml(t.category||'—')}</span>
+          ${t.store ? `<span>${escapeHtml(t.store)}</span>` : ''}
           <span>${escapeHtml(t.who||'')}</span>
           ${t.qty && t.qty!==1 ? `<span>${t.qty} шт × ${money(t.total/t.qty)}</span>` : ''}
         </div>
@@ -717,7 +948,7 @@ function renderIncome(){
     };
     const res = await performAction('addIncome', params);
     if(res.ok){
-      incomes.push({ no: res.data.no, date: params.date, source: params.source, who: params.who, amount: params.amount });
+      incomes.push({ no: res.data.no, ...params });
       showToast('Добавлено');
     }
     else{ showToast('Нет интернета — сохранено на телефоне, отправится само'); }
@@ -758,7 +989,6 @@ function renderDebts(){
   const panel = document.getElementById('panel-debts');
   const list = displayDebts();
 
-  // баланс по каждому человеку: сколько нам должны минус сколько мы должны (только "Открыт")
   const balances = {};
   list.forEach(d=>{
     if(d.status !== 'Открыт') return;
@@ -811,7 +1041,7 @@ function renderDebts(){
     };
     const res = await performAction('addDebt', params);
     if(res.ok){
-      debts.push({ id: res.data.id, date: params.date, person: params.person, amount: params.amount, direction: params.direction, comment: params.comment, status: 'Открыт' });
+      debts.push({ id: res.data.id, ...params, status: 'Открыт' });
       showToast('Долг добавлен');
     } else {
       showToast('Нет интернета — сохранено на телефоне, отправится само');
@@ -860,9 +1090,151 @@ function renderDebts(){
   });
 }
 
+function renderSavings(){
+  const panel = document.getElementById('panel-savings');
+  const list = displaySavings();
+  const total = list.reduce((s,x)=>s+Number(x.amount||0),0);
+  panel.innerHTML = `
+    <div class="receipt"><div class="receipt-inner">
+      <div class="summary-row">
+        <div class="summary-cell"><div class="label">Накоплено всего</div><div class="value" style="color:var(--green)">${money(total)}</div></div>
+      </div>
+    </div></div>
+    <div class="form-card">
+      <div class="form-title">Новый взнос</div>
+      <div class="form-grid">
+        <div><label>Тип</label>
+          <select id="sType"><option value="deposit">Взнос (+)</option><option value="withdraw">Снятие (−)</option></select>
+        </div>
+        <div><label>Сумма</label><input type="number" id="sAmount" placeholder="0" step="any" min="0"></div>
+        <div class="full"><label>Комментарий (необязательно)</label><input type="text" id="sComment" placeholder="напр. с зарплаты"></div>
+      </div>
+      <button class="btn" id="addSavingBtn">Добавить</button>
+    </div>
+    <div class="receipt"><div class="receipt-inner" id="savingsList"></div></div>
+  `;
+  document.getElementById('addSavingBtn').addEventListener('click', async ()=>{
+    const rawAmount = parseFloat(document.getElementById('sAmount').value);
+    if(!rawAmount || rawAmount<=0){ showToast('Укажи сумму'); return; }
+    const type = document.getElementById('sType').value;
+    const amount = type==='withdraw' ? -rawAmount : rawAmount;
+    const params = {
+      date: new Date().toISOString().slice(0,10), amount,
+      comment: document.getElementById('sComment').value.trim(),
+      who: window.__currentWho || WHO[0]
+    };
+    const res = await performAction('addSaving', params);
+    if(res.ok){ savings.push({ id: res.data.id, ...params }); showToast('Добавлено'); }
+    else{ showToast('Нет интернета — сохранено на телефоне'); }
+    renderSavings();
+    render();
+  });
+  const listEl = document.getElementById('savingsList');
+  const sorted = list.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(sorted.length===0){ listEl.innerHTML = `<div class="empty-state">Пока пусто.</div>`; return; }
+  listEl.innerHTML = sorted.map(s=>`
+    <div class="tx-row ${s.pending?'pending':''}">
+      <div class="tx-main">
+        <div class="tx-name">${s.amount>=0?'Взнос':'Снятие'}${s.comment?': '+escapeHtml(s.comment):''}</div>
+        <div class="tx-meta"><span>${formatDate(s.date)}</span><span>${escapeHtml(s.who||'')}</span>${s.pending?'<span class="tag pending-tag">ждёт отправки</span>':''}</div>
+      </div>
+      <div class="tx-amount" style="color:${s.amount>=0?'var(--green)':'var(--red)'}">${s.amount>=0?'+':''}${money(s.amount)}</div>
+    </div>
+  `).join('');
+}
+
+function renderGoals(){
+  const panel = document.getElementById('panel-goals');
+  const list = displayGoals();
+  panel.innerHTML = `
+    <div class="form-card">
+      <div class="form-title">Новая цель</div>
+      <div class="form-grid">
+        <div class="full"><label>Название</label><input type="text" id="gName" placeholder="напр. Новый ноутбук"></div>
+        <div><label>Стоимость</label><input type="number" id="gTarget" placeholder="0" step="any" min="0"></div>
+        <div><label>Уже накоплено</label><input type="number" id="gSaved" placeholder="0" step="any" min="0" value="0"></div>
+        <div class="full"><label>Комментарий (необязательно)</label><input type="text" id="gComment" placeholder=""></div>
+      </div>
+      <button class="btn" id="addGoalBtn">Добавить цель</button>
+    </div>
+    <div class="receipt"><div class="receipt-inner" id="goalsList"></div></div>
+  `;
+  document.getElementById('addGoalBtn').addEventListener('click', async ()=>{
+    const name = document.getElementById('gName').value.trim();
+    const target = parseFloat(document.getElementById('gTarget').value);
+    if(!name || !target || target<=0){ showToast('Укажи название и стоимость'); return; }
+    const params = {
+      name, target,
+      saved: parseFloat(document.getElementById('gSaved').value)||0,
+      comment: document.getElementById('gComment').value.trim()
+    };
+    const res = await performAction('addGoal', params);
+    if(res.ok){ goals.push({ id: res.data.id, ...params }); showToast('Цель добавлена'); }
+    else{ showToast('Нет интернета — сохранено на телефоне'); }
+    renderGoals();
+    render();
+  });
+  const listEl = document.getElementById('goalsList');
+  if(list.length===0){ listEl.innerHTML = `<div class="empty-state">Пока нет целей.</div>`; return; }
+  listEl.innerHTML = list.map(g=>{
+    const pct = g.target>0 ? Math.min(100, g.saved/g.target*100) : 0;
+    const achieved = g.target>0 && g.saved>=g.target;
+    return `
+      <div class="cat-row">
+        <div class="cat-head">
+          <span class="cat-name">${escapeHtml(g.name)}${achieved?' ✅':''}</span>
+          <span class="cat-figs"><b>${money(g.saved)}</b> / ${money(g.target)}</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${achieved?'var(--green)':'var(--navy)'};"></div></div>
+        ${g.comment ? `<div class="debt-meta">${escapeHtml(g.comment)}</div>` : ''}
+        ${g.pending ? '<span class="tag pending-tag">ждёт отправки</span>' : `
+        <div class="cat-controls" style="margin-top:6px;">
+          <label>Накоплено:</label>
+          <input type="number" class="plan-input goal-saved-input" min="0" step="10" value="${g.saved||0}" data-id="${g.id}">
+        </div>`}
+      </div>
+    `;
+  }).join('');
+  listEl.querySelectorAll('.goal-saved-input').forEach(inp=>{
+    inp.addEventListener('change', async ()=>{
+      const val = parseFloat(inp.value)||0;
+      try{
+        await apiCall('updateGoalSaved', {id: inp.dataset.id, saved: val});
+        const g = goals.find(x=>String(x.id)===String(inp.dataset.id));
+        if(g) g.saved = val;
+        renderGoals();
+        render();
+        showToast('Обновлено');
+      }catch(err){
+        showToast('Это действие требует подключения к интернету');
+      }
+    });
+  });
+}
+
 function renderBudget(){
   const panel = document.getElementById('panel-budget');
   panel.innerHTML = `
+    <div class="mode-toggle">
+      <div class="mode-btn ${budgetMode==='month'?'active':''}" data-bmode="month">По месяцу</div>
+      <div class="mode-btn ${budgetMode==='day'?'active':''}" data-bmode="day">По дню</div>
+    </div>
+    <div id="budgetBody"></div>
+  `;
+  panel.querySelectorAll('.mode-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ budgetMode = btn.dataset.bmode; renderBudget(); });
+  });
+
+  if(budgetMode === 'month'){
+    renderBudgetMonth();
+  } else {
+    renderBudgetDay();
+  }
+}
+
+function renderBudgetMonth(){
+  const body = document.getElementById('budgetBody');
+  body.innerHTML = `
     <div class="receipt"><div class="receipt-inner">
       <div class="month-picker"><label>Месяц</label><input type="month" id="monthPick" value="${currentMonth}"></div>
       <div class="donut-wrap" id="donutWrap"></div>
@@ -871,7 +1243,7 @@ function renderBudget(){
   `;
   document.getElementById('monthPick').addEventListener('change', (e)=>{
     currentMonth = e.target.value;
-    renderBudget();
+    renderBudgetMonth();
   });
 
   const cats = displayCategories();
@@ -939,10 +1311,54 @@ function renderBudget(){
       const res = await performAction('setBudget', {category: inp.dataset.cat, plan: val});
       if(res.ok){ plans[inp.dataset.cat] = val; showToast('План сохранён'); }
       else{ showToast('Нет интернета — сохранится при подключении'); }
-      renderBudget();
+      renderBudgetMonth();
       render();
     });
   });
+}
+
+function renderBudgetDay(){
+  const body = document.getElementById('budgetBody');
+  body.innerHTML = `
+    <div class="receipt"><div class="receipt-inner">
+      <div class="month-picker"><label>День</label><input type="date" id="dayPick" value="${budgetDay}"></div>
+    </div></div>
+    <div class="receipt"><div class="receipt-inner" id="dayList"></div></div>
+  `;
+  document.getElementById('dayPick').addEventListener('change', (e)=>{
+    budgetDay = e.target.value;
+    renderDayList();
+  });
+  renderDayList();
+}
+
+function renderDayList(){
+  const listEl = document.getElementById('dayList');
+  if(!listEl) return;
+  const cats = displayCategories();
+  const dayTx = displayTransactions().filter(t=>t.date===budgetDay);
+  if(dayTx.length===0){ listEl.innerHTML = `<div class="empty-state">Трат за этот день нет.</div>`; return; }
+  const total = dayTx.reduce((s,t)=>s+Number(t.total||0),0);
+  const sorted = dayTx.slice().sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+  listEl.innerHTML = `
+    <div class="cat-row"><div class="cat-head"><span class="cat-name" style="font-weight:700">Итого за день</span><span class="cat-figs"><b>${money(total)}</b></span></div></div>
+  ` + sorted.map(t=>{
+    const idx = cats.indexOf(t.category);
+    const color = DONUT_COLORS[idx>=0?idx%DONUT_COLORS.length:0];
+    return `
+      <div class="tx-row">
+        <div class="tx-main">
+          <div class="tx-name">${escapeHtml(t.name)}</div>
+          <div class="tx-meta">
+            <span class="tag" style="background:${color}22; color:${color};">${escapeHtml(t.category||'—')}</span>
+            ${t.store ? `<span>${escapeHtml(t.store)}</span>` : ''}
+            <span>${escapeHtml(t.who||'')}</span>
+          </div>
+        </div>
+        <div class="tx-amount">${money(t.total)}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 if('serviceWorker' in navigator){
@@ -951,15 +1367,6 @@ if('serviceWorker' in navigator){
   });
 }
 window.addEventListener('online', flushQueue);
-setInterval(flushQueue, 15000);
-
-// фоновое подтягивание изменений от супруги (не мешает во время ввода)
-setInterval(async ()=>{
-  const active = document.activeElement;
-  const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'SELECT');
-  if(isTyping) return;
-  try{ await loadAll(); apiOk = true; render(); }catch(err){ apiOk = false; }
-}, 20000);
 
 (async function init(){
   try{
@@ -967,6 +1374,7 @@ setInterval(async ()=>{
     apiOk = true;
   }catch(err){
     apiOk = false;
+    usingCache = loadDataCache();
   }
   document.getElementById('loadingMsg')?.remove();
   render();
