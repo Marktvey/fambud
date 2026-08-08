@@ -311,13 +311,15 @@ async function loadAll(){
 }
 
 async function performAction(action, params){
+  const cid = genTmpId();
+  const paramsWithId = Object.assign({}, params, {clientId: cid});
   try{
-    const data = await apiCall(action, params);
+    const data = await apiCall(action, paramsWithId);
     apiOk = true;
     return { ok:true, data };
   }catch(err){
     apiOk = false;
-    pendingQueue.push({ id: genTmpId(), action, params, createdAt: Date.now() });
+    pendingQueue.push({ id: cid, action, params: paramsWithId, createdAt: Date.now() });
     savePendingQueue();
     return { ok:false, queued:true };
   }
@@ -473,8 +475,16 @@ function parseBulkLine(line){
   return null;
 }
 
-function totalIncome(){ return displayIncomes().reduce((s,i)=>s+Number(i.amount||0),0); }
-function totalExpense(){ return displayTransactions().reduce((s,t)=>s+Number(t.total||0),0); }
+function totalIncome(){
+  const m = new Date().toISOString().slice(0,7);
+  return displayIncomes().filter(i=>(i.date||'').slice(0,7)===m).reduce((s,i)=>s+Number(i.amount||0),0);
+}
+function totalExpense(){
+  const m = new Date().toISOString().slice(0,7);
+  return displayTransactions().filter(t=>(t.date||'').slice(0,7)===m).reduce((s,t)=>s+Number(t.total||0),0);
+}
+function totalIncomeAllTime(){ return displayIncomes().reduce((s,i)=>s+Number(i.amount||0),0); }
+function totalExpenseAllTime(){ return displayTransactions().reduce((s,t)=>s+Number(t.total||0),0); }
 
 function render(){
   const app = document.getElementById('app');
@@ -509,10 +519,11 @@ function render(){
 
     <div class="receipt">
       <div class="receipt-inner">
+        <div style="font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;">За текущий месяц</div>
         <div class="summary-row">
-          <div class="summary-cell income"><div class="label">Доход</div><div class="value">${money(income)}</div></div>
+          <div class="summary-cell income"><div class="label">Доход (месяц)</div><div class="value">${money(income)}</div></div>
           <div class="summary-divider"></div>
-          <div class="summary-cell expense"><div class="label">Расход</div><div class="value">${money(expense)}</div></div>
+          <div class="summary-cell expense"><div class="label">Расход (месяц)</div><div class="value">${money(expense)}</div></div>
           <div class="summary-divider"></div>
           <div class="summary-cell"><div class="label">Остаток</div><div class="value">${money(balance)}</div></div>
         </div>
@@ -1268,7 +1279,19 @@ function renderBudget(){
 
 function renderBudgetMonth(){
   const body = document.getElementById('budgetBody');
+  const allTimeIncome = totalIncomeAllTime();
+  const allTimeExpense = totalExpenseAllTime();
   body.innerHTML = `
+    <div class="receipt"><div class="receipt-inner">
+      <div style="font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;">За всё время</div>
+      <div class="summary-row" style="margin-bottom:4px;">
+        <div class="summary-cell income"><div class="label">Доход</div><div class="value">${money(allTimeIncome)}</div></div>
+        <div class="summary-divider"></div>
+        <div class="summary-cell expense"><div class="label">Расход</div><div class="value">${money(allTimeExpense)}</div></div>
+        <div class="summary-divider"></div>
+        <div class="summary-cell"><div class="label">Остаток</div><div class="value">${money(allTimeIncome-allTimeExpense)}</div></div>
+      </div>
+    </div></div>
     <div class="receipt"><div class="receipt-inner">
       <div class="month-picker"><label>Месяц</label><input type="month" id="monthPick" value="${currentMonth}"></div>
       <div class="donut-wrap" id="donutWrap"></div>
